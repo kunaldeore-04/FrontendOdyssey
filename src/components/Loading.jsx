@@ -1,161 +1,198 @@
-import { useState } from 'react'
-import { AnimatePresence, motion } from 'framer-motion'
-import { Power } from 'lucide-react'
+import { useState, useEffect } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { Power } from 'lucide-react';
+
+/* ─────────────────────────────────────────
+   Design Constants
+───────────────────────────────────────── */
+const GOLD = 'rgba(201, 168, 76, 0.7)';
+const GOLD_DIM = 'rgba(201, 168, 76, 0.15)';
+const BG_DARK = '#070707';
 
 const bootLines = [
-    "> INITIALIZING CORE_SYSTEMS............",
-    "> LOADING MEMORY_MODULES [OK]",
-    "> CALIBRATING NEURAL_MATRIX [OK]",
-    "> ESTABLISHING NEURAL_LINK [98%]",
-    "> ALL SYSTEMS NOMINAL — WELCOME BACK",
-]
+  "> INITIALIZING_QUANTUM_CORE............",
+  "> LOADING_CORTEX_V8_MODULES [OK]",
+  "> SYNCHRONIZING_L3_CACHE [32MB]",
+  "> CALIBRATING_PIPELINE_STAGES [OK]",
+  "> SYSTEM_NOMINAL — ACCESS_GRANTED",
+];
 
+/* ─────────────────────────────────────────
+   Components
+───────────────────────────────────────── */
 const BootLine = ({ text, index }) => (
   <motion.p
-    className="font-mono text-sm tracking-wide"
-    style={{ color: index === bootLines.length - 1 ? '#10b981' : '#fcd34d' }}
-    initial={{ opacity: 0, x: -12 }}
+    style={{ 
+      fontFamily: "'Syne Mono', monospace",
+      fontSize: '8px',
+      letterSpacing: '1.2px',
+      color: index === bootLines.length - 1 ? '#F0EDE6' : 'rgba(201, 168, 76, 0.5)',
+      margin: '6px 0',
+      textTransform: 'uppercase'
+    }}
+    initial={{ opacity: 0, x: -5 }}
     animate={{ opacity: 1, x: 0 }}
-    transition={{ delay: index * 0.32, duration: 0.25, ease: 'easeOut' }}
+    transition={{ delay: index * 0.2, duration: 0.3 }}
   >
     {text}
   </motion.p>
-)
+);
 
-function Loading({ onPowerOn }) {
-    
+export default function Loading({ onPowerOn }) {
+  const [phase, setPhase] = useState(0); // 0: standby, 1: boot, 2: complete
 
-    const [phase, setPhase] = useState(0); //0 : idle 1: booting 2: done
+  const handlePowerClick = () => {
+    setPhase(1);
+    setTimeout(() => {
+      setPhase(2);
+      if (onPowerOn) onPowerOn();
+    }, bootLines.length * 200 + 1500);
+  };
 
-    const handlePowerClick = () => {
-   
-        setPhase(1);
-        setTimeout(() => {
-            setPhase(2);
-            onPowerOn();
-        }, bootLines.length * 320 + 900);
-    }
-    return (
-        <div className='relative flex h-full w-full items-center justify-center'>
-            {/*grid bg */}
-            <div
-                className="absolute inset-0 opacity-10"
+  return (
+    <div style={{ 
+      position: 'relative', height: '100vh', width: '100%', 
+      backgroundColor: BG_DARK, overflow: 'hidden',
+      display: 'flex', alignItems: 'center', justifyContent: 'center'
+    }}>
+      
+      {/* ── SHARED BACKGROUND SYSTEM ── */}
+      
+      {/* Grain texture */}
+      <div style={{
+        position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 40, opacity: 0.4,
+        backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+        backgroundSize: '160px 160px',
+      }} />
+
+      {/* Vignette */}
+      <div style={{
+        position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 3,
+        background: 'radial-gradient(ellipse 85% 85% at 50% 50%, transparent 25%, #070707 100%)',
+      }} />
+
+      {/* Warm ambient glow */}
+      <div style={{
+        position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1,
+        background: 'radial-gradient(ellipse 55% 50% at 50% 50%, rgba(201,168,76,0.055) 0%, transparent 70%)',
+      }} />
+
+      {/* ── CONTENT ── */}
+
+      <AnimatePresence mode="wait">
+        {phase === 0 && (
+          <motion.div
+            key="standby"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0, scale: 1.1, filter: 'blur(10px)', transition: { duration: 0.5 } }}
+            style={{ zIndex: 10, textAlign: 'center' }}
+          >
+            <div style={{ position: 'relative', marginBottom: 40, display: 'flex', justifyContent: 'center' }}>
+              {/* Pulse Rings */}
+              {[0, 1].map((r) => (
+                <motion.div
+                  key={r}
+                  animate={{ opacity: [0.2, 0.05, 0.2], scale: [1, 1.4, 1] }}
+                  transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: r * 2 }}
+                  style={{
+                    position: 'absolute', width: 90, height: 90,
+                    border: '1px solid rgba(201,168,76,0.2)',
+                    borderRadius: '50%',
+                  }}
+                />
+              ))}
+
+              <motion.button
+                onClick={handlePowerClick}
+                whileHover={{ scale: 1.05, borderColor: GOLD }}
+                whileTap={{ scale: 0.95 }}
                 style={{
-                    backgroundImage:
-                        'linear-gradient(rgba(16,185,129,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(16,185,129,0.4) 1px, transparent 1px)',
-                    backgroundSize: '40px 40px',
+                  width: 90, height: 90, borderRadius: '50%',
+                  backgroundColor: 'rgba(15, 15, 15, 0.5)',
+                  border: `1px solid ${GOLD_DIM}`,
+                  cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  backdropFilter: 'blur(8px)', zIndex: 2, transition: 'border-color 0.3s'
                 }}
-            />
+              >
+                <Power color="#C9A84C" size={32} strokeWidth={1} />
+              </motion.button>
+            </div>
 
-            {/*blob*/}
+            <div style={{
+              fontFamily: "'Syne Mono', monospace", fontSize: 8,
+              letterSpacing: 6, color: 'rgba(201,168,76,0.4)',
+              textTransform: 'uppercase', marginBottom: 16
+            }}>
+              Core Standby
+            </div>
             <motion.div
-                className="absolute rounded-full"
-                style={{
-                    width: 420,
-                    height: 420,
-                    background:
-                        'radial-gradient(circle, rgba(16,185,129,0.12) 0%, transparent 70%)',
-                    filter: 'blur(40px)',
-                }}
-                animate={{ scale: [1, 1.08, 1], opacity: [0.6, 1, 0.6] }}
-                transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
-            />
+              animate={{ opacity: [0.4, 0.7, 0.4] }}
+              transition={{ duration: 3, repeat: Infinity }}
+              style={{
+                fontFamily: "'Cormorant Garamond', serif", fontSize: 20,
+                fontStyle: 'italic', color: '#F0EDE6', fontWeight: 300
+              }}
+            >
+              Touch to wake
+            </motion.div>
+          </motion.div>
+        )}
 
-            <AnimatePresence mode='wait'>
-                {phase === 0 && (
-                    <motion.div
-                        key="idle"
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0, scale: 0.9, filter: 'brightness(3) blur(4px)', transition: { duration: 0.4 } }}
-                        className='flex flex-col items-center justify-center gap-5'
-                    >
-                        <div className="relative flex items-center justify-center">
-                            <motion.div
-                                className="absolute rounded-full border border-emerald-500/40"
-                                style={{ width: 110, height: 110 }}
-                                animate={{ scale: [1, 1.4, 1], opacity: [0.5, 0, 0.5] }}
-                                transition={{ duration: 2.4, repeat: Infinity, ease: 'easeOut' }}
-                            />
-                            <motion.div
-                                className="absolute rounded-full border border-emerald-400/20"
-                                style={{ width: 80, height: 80 }}
-                                animate={{ scale: [1, 1.3, 1], opacity: [0.4, 0, 0.4] }}
-                                transition={{ duration: 2.4, repeat: Infinity, ease: 'easeOut', delay: 0.4 }}
-                            />
-                            <motion.button
-                                className='realative z-10 flex h-16 w-16 items-center justify-center rounded-full bg-gray-900/40 shadow-lg backdrop-blur-sm border border-emerald-400/50'
-                                onClick={handlePowerClick}
-                                style={{ boxShadow: '0 0 20px rgba(16,185,129,0.3)' }}
-                                whileHover={{
-                                    scale: 1.1,
-                                    boxShadow: '0 0 40px rgba(16,185,129,0.5)'
-                                }}
-                                whileTap={{ scale: 0.94 }}
-                            >
-                                <Power className='text-emerald-400' size={26} />
+        {phase === 1 && (
+          <motion.div
+            key="boot"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, filter: 'blur(10px)', transition: { duration: 0.5 } }}
+            style={{
+              zIndex: 10, width: 340, padding: 24,
+              background: 'linear-gradient(150deg, #131211 0%, #0c0b0b 100%)',
+              border: '1px solid rgba(201,168,76,0.15)',
+              borderRadius: 12, position: 'relative',
+              boxShadow: '0 40px 100px rgba(0,0,0,0.8)'
+            }}
+          >
+            {/* Edge highlights like the CPU die */}
+            <div style={{
+              position: 'absolute', top: 0, left: 0, right: 0, height: 1,
+              background: 'linear-gradient(90deg, transparent, rgba(255,255,255,0.05) 50%, transparent)',
+            }} />
 
-                            </motion.button>
-                        </div>
+            {/* Diagnostic Header */}
+            <div style={{ 
+              display: 'flex', justifyContent: 'space-between', alignItems: 'center', 
+              marginBottom: 20, borderBottom: '1px solid rgba(201,168,76,0.1)', paddingBottom: 12 
+            }}>
+               <span style={{ 
+                fontFamily: "'Syne Mono', monospace", fontSize: 7, 
+                letterSpacing: 3, color: GOLD, opacity: 0.6 
+              }}>
+                INIT_SEQUENCE_v8.0
+              </span>
+              <motion.div 
+                animate={{ opacity: [1, 0.2, 1] }}
+                transition={{ duration: 1, repeat: Infinity }}
+                style={{ width: 4, height: 4, borderRadius: '50%', backgroundColor: GOLD }} 
+              />
+            </div>
 
-                        <div className='flex flex-col items-center justify-center gap-1'>
-                            <span className='font-mono text-xs tracking-tight text-emerald-300/70'>
-                                System Standby...
-                            </span>
-                            <motion.span
-                                className='font-mono text-md tracking-wider text-red-400/80'
-                                animate={{ opacity: [0.6, 1, 0.6] }}
-                                transition={{ duration: 1.2, repeat: Infinity, ease: 'easeInOut' }}
-                            >
-                                Press the button to initalize the system
-                            </motion.span>
-                        </div>
-                    </motion.div>
-                )}
-                {phase === 1 && (
-                    <motion.div
-                        key="booting"
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{
-                            opacity: 0,
-                            y: -20,
-                            filter: 'blur(6px)',
-                            transition: { duration: 0.5 },
-                        }}
-                        className="w-72 space-y-2 rounded border border-emerald-900/60 bg-gray-950/80 p-6 backdrop-blur"
-                        style={{ boxShadow: '0 0 40px rgba(16,185,129,0.08)' }}
-                    >
-                        {/* Header bar */}
-                        <div className="mb-4 flex items-center gap-2 border-b border-emerald-900/40 pb-3">
-                            <div className="h-2 w-2 rounded-full bg-emerald-500 shadow-[0_0_6px_#10b981]" />
-                            <span className="font-mono text-[10px] uppercase tracking-[0.25em] text-emerald-500/70">
-                                BOOT SEQUENCE
-                            </span>
-                        </div>
+            {bootLines.map((line, i) => (
+              <BootLine key={i} text={line} index={i} />
+            ))}
 
-                        {bootLines.map((line, i) => (
-                            <BootLine key={i} text={line} index={i} />
-                        ))}
-
-                        {/* Progress bar */}
-                        <div className="mt-4 h-px w-full bg-gray-800">
-                            <motion.div
-                                className="h-px"
-                                style={{
-                                    background: 'linear-gradient(90deg, #10b981, #fbbf24)',
-                                    boxShadow: '0 0 8px #10b981',
-                                }}
-                                initial={{ width: 0 }}
-                                animate={{ width: '100%' }}
-                                transition={{ delay: 0.2, duration: bootLines.length * 0.32 + 0.4, ease: 'easeInOut' }}
-                            />
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
-        </div>
-    )
+            {/* Hairline Progress Bar */}
+            <div style={{ marginTop: 24, height: 1, width: '100%', backgroundColor: 'rgba(201,168,76,0.05)' }}>
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: '100%' }}
+                transition={{ duration: bootLines.length * 0.2 + 0.5, ease: 'easeInOut' }}
+                style={{ height: '100%', backgroundColor: GOLD, boxShadow: `0 0 10px ${GOLD}` }}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
-
-export default Loading

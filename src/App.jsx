@@ -8,7 +8,7 @@ function App() {
 
   return (
     // Changed bg-gray-900 to bg-gray-950 to match your Loading component's depth
-    <div className='h-screen w-screen bg-gray-950 overflow-hidden'>
+    <div className='h-screen w-screen bg-gray-950 '>
       <AnimatePresence mode="wait">
         {!booted ? (
           <Loading 
