@@ -5,7 +5,7 @@ import { Power } from 'lucide-react';
 /* ─────────────────────────────────────────
    Design Constants
 ───────────────────────────────────────── */
-const GOLD = 'rgba(201, 168, 76, 0.7)';
+const GOLD = 'rgba(201, 168, 76, 0.9)';
 const GOLD_DIM = 'rgba(201, 168, 76, 0.15)';
 const BG_DARK = '#070707';
 
@@ -26,7 +26,7 @@ const BootLine = ({ text, index }) => (
       fontFamily: "'Syne Mono', monospace",
       fontSize: '8px',
       letterSpacing: '1.2px',
-      color: index === bootLines.length - 1 ? '#F0EDE6' : 'rgba(201, 168, 76, 0.5)',
+      color: index === bootLines.length - 1 ? '#F0EDE6' : 'rgba(201, 168, 76, .8)',
       margin: '6px 0',
       textTransform: 'uppercase'
     }}
@@ -93,8 +93,8 @@ export default function Loading({ onPowerOn }) {
               {[0, 1].map((r) => (
                 <motion.div
                   key={r}
-                  animate={{ opacity: [0.2, 0.05, 0.2], scale: [1, 1.4, 1] }}
-                  transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut', delay: r * 2 }}
+                  animate={{ opacity: [.6, 0.2, .6], scale: [1, 1.4, 1] }}
+                  transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut', delay: r * 2 }}
                   style={{
                     position: 'absolute', width: 90, height: 90,
                     border: '1px solid rgba(201,168,76,0.2)',
@@ -105,7 +105,7 @@ export default function Loading({ onPowerOn }) {
 
               <motion.button
                 onClick={handlePowerClick}
-                whileHover={{ scale: 1.05, borderColor: GOLD }}
+                whileHover={{ scale: 1.05, borderColor: GOLD , boxShadow: `0 0 100px ${GOLD_DIM}` }}
                 whileTap={{ scale: 0.95 }}
                 style={{
                   width: 90, height: 90, borderRadius: '50%',
@@ -120,17 +120,17 @@ export default function Loading({ onPowerOn }) {
             </div>
 
             <div style={{
-              fontFamily: "'Syne Mono', monospace", fontSize: 8,
-              letterSpacing: 6, color: 'rgba(201,168,76,0.4)',
+              fontFamily: "'Syne Mono', monospace", fontSize: 10,
+              letterSpacing: 6, color: 'rgb(201,168,76)',
               textTransform: 'uppercase', marginBottom: 16
             }}>
               Core Standby
             </div>
             <motion.div
-              animate={{ opacity: [0.4, 0.7, 0.4] }}
-              transition={{ duration: 3, repeat: Infinity }}
+              animate={{ opacity: [0.4, 0.9, 0.4] }}
+              transition={{ duration: 3, repeat: Infinity,ease: 'easeInOut' }}
               style={{
-                fontFamily: "'Cormorant Garamond', serif", fontSize: 20,
+                fontFamily: "'Cormorant Garamond', serif", fontSize: 24,
                 fontStyle: 'italic', color: '#F0EDE6', fontWeight: 300
               }}
             >
@@ -165,14 +165,14 @@ export default function Loading({ onPowerOn }) {
               marginBottom: 20, borderBottom: '1px solid rgba(201,168,76,0.1)', paddingBottom: 12 
             }}>
                <span style={{ 
-                fontFamily: "'Syne Mono', monospace", fontSize: 7, 
-                letterSpacing: 3, color: GOLD, opacity: 0.6 
+                fontFamily: "'Syne Mono', monospace", fontSize: 10, 
+                letterSpacing: 3, color: GOLD, opacity: 1
               }}>
                 INIT_SEQUENCE_v8.0
               </span>
               <motion.div 
-                animate={{ opacity: [1, 0.2, 1] }}
-                transition={{ duration: 1, repeat: Infinity }}
+                animate={{ opacity: [1, 0.6, 1] }}
+                transition={{ duration: .6, repeat: Infinity }}
                 style={{ width: 4, height: 4, borderRadius: '50%', backgroundColor: GOLD }} 
               />
             </div>
@@ -182,7 +182,7 @@ export default function Loading({ onPowerOn }) {
             ))}
 
             {/* Hairline Progress Bar */}
-            <div style={{ marginTop: 24, height: 1, width: '100%', backgroundColor: 'rgba(201,168,76,0.05)' }}>
+            <div style={{ marginTop: 24, height: 1, width: '100%', backgroundColor: 'rgba(201,168,76,0.6)' }}>
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: '100%' }}
