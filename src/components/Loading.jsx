@@ -40,13 +40,13 @@ const BootLine = ({ text, index }) => (
 
 export default function Loading({ onPowerOn }) {
   const [phase, setPhase] = useState(0); // 0: standby, 1: boot, 2: complete
-
+  const BOOT_DURATION = bootLines.length * 200 ; // Total time for boot sequence
   const handlePowerClick = () => {
     setPhase(1);
     setTimeout(() => {
       setPhase(2);
       if (onPowerOn) onPowerOn();
-    }, bootLines.length * 200 + 1500);
+    }, BOOT_DURATION*7); 
   };
 
   return (
@@ -184,9 +184,8 @@ export default function Loading({ onPowerOn }) {
             {/* Hairline Progress Bar */}
             <div style={{ marginTop: 24, height: 1, width: '100%', backgroundColor: 'rgba(201,168,76,0.6)' }}>
               <motion.div
-                initial={{ width: 0 }}
-                animate={{ width: '100%' }}
-                transition={{ duration: bootLines.length * 0.2 + 0.5, ease: 'easeInOut' }}
+                animate={{ width: [0, '90%', '90%','100%'] }}
+                transition={{ duration: bootLines.length * 0.2 +5, ease: 'easeInOut' ,times: [0, 0.8, 0.95, 1]}}
                 style={{ height: '100%', backgroundColor: GOLD, boxShadow: `0 0 10px ${GOLD}` }}
               />
             </div>
