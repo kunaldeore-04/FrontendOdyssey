@@ -32,7 +32,7 @@ const BootLine = ({ text, index }) => (
     }}
     initial={{ opacity: 0, x: -5 }}
     animate={{ opacity: 1, x: 0 }}
-    transition={{ delay: index * 0.2, duration: 0.3 }}
+    transition={{ delay: index * 0.2, duration: 0.05, ease: 'easeOut' }}
   >
     {text}
   </motion.p>

@@ -73,7 +73,19 @@ function DieSweep({ progress }) {
   );
 }
 
+const CORE_DESCRIPTIONS = [
+  'P-core: High performance',
+  'P-core: Boost freq 5.4 GHz',
+  'E-core: Efficiency mode',
+  'E-core: Background tasks',
+  'P-core: AVX-512 unit',
+  'P-core: Branch predictor',
+  'E-core: Cache coherency',
+  'E-core: Power gating',
+];
+
 function CoreCell({ index, progress }) {
+  const [hovered, setHovered] = useState(false);
   const threshold = 0.26 + index * 0.026;
   const opacity = useTransform(progress, [threshold, threshold + 0.07], [0, 1]);
   const bg = useTransform(
@@ -93,12 +105,16 @@ function CoreCell({ index, progress }) {
   );
   return (
     <motion.div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       style={{
         opacity,
         backgroundColor: bg,
         border: '0.5px solid',
         borderColor,
-        boxShadow: glow,
+        boxShadow: hovered
+          ? '0 0 22px rgba(201,168,76,0.65), 0 0 6px rgba(201,168,76,0.3)'
+          : glow,
         borderRadius: 4,
         aspectRatio: '1',
         display: 'flex',
@@ -106,6 +122,13 @@ function CoreCell({ index, progress }) {
         justifyContent: 'center',
         position: 'relative',
         overflow: 'hidden',
+        cursor: 'default',
+        transition: 'box-shadow 0.25s ease',
+        transform: hovered ? 'scale(1.18)' : 'scale(1)',
+        zIndex: hovered ? 10 : 'auto',
+        transitionProperty: 'transform, box-shadow',
+        transitionDuration: '0.22s',
+        transitionTimingFunction: 'cubic-bezier(0.34,1.56,0.64,1)',
       }}
     >
       {/* transistor grid lines */}
@@ -116,21 +139,94 @@ function CoreCell({ index, progress }) {
           'linear-gradient(90deg, rgba(201,168,76,0.07) 1px, transparent 1px)',
         backgroundSize: '33.3% 33.3%',
       }} />
-      <span style={{
+      <div style={{
         position: 'relative', zIndex: 1,
-        fontSize: 7, letterSpacing: 1,
-        color: 'rgba(201,168,76,0.8)',
-        fontFamily: "'Syne Mono', monospace",
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2,
       }}>
-        C{index}
-      </span>
+        <span style={{
+          fontSize: hovered ? 11 : 7,
+          letterSpacing: 1,
+          color: hovered ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,0.8)',
+          fontFamily: "'Syne Mono', monospace",
+          fontWeight: hovered ? 700 : 400,
+          transition: 'font-size 0.22s ease, color 0.22s ease, font-weight 0.22s ease',
+        }}>
+          C{index}
+        </span>
+        <span style={{
+          fontSize: hovered ? 7 : 4,
+          letterSpacing: 0.3,
+          color: 'rgba(201,168,76,0.9)',
+          fontFamily: "'Syne Mono', monospace",
+          textAlign: 'center',
+          lineHeight: 1.3,
+          maxWidth: 52,
+          opacity: hovered ? 1 : 0,
+          transition: 'opacity 0.2s ease',
+          pointerEvents: 'none',
+        }}>
+          {CORE_DESCRIPTIONS[index]}
+        </span>
+      </div>
+    </motion.div>
+  );
+}
+
+function L3CacheCell({ opacity }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <motion.div
+      style={{ opacity }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+    >
+      <div
+        style={{
+          transform: hovered ? 'scale(1.07)' : 'scale(1)',
+          transition: 'transform 0.22s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease',
+          boxShadow: hovered ? '0 0 16px rgba(201,168,76,0.5)' : 'none',
+          borderRadius: 3,
+          cursor: 'default',
+        }}
+        className="rounded-[3px] border-[0.5px] border-[#c9a84ca1] bg-[#c9a84c05] py-1.25 text-center font-['Syne_Mono',monospace] tracking-[3.5px] text-[#c9a84cc6]"
+      >
+        <span style={{
+          fontSize: hovered ? 12 : 6.5,
+          fontWeight: hovered ? 700 : 400,
+          color: hovered ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,0.78)',
+          transition: 'font-size 0.2s ease, font-weight 0.2s ease, color 0.2s ease',
+          display: 'inline-block',
+        }}>
+          L3 CACHE · 32 MB
+        </span>
+        <div style={{
+          fontSize: hovered ? 8 : 4.5,
+          letterSpacing: 0.5,
+          color: 'rgba(201,168,76,0.7)',
+          fontFamily: "'Syne Mono', monospace",
+          marginTop: 2,
+          lineHeight: 1.4,
+          opacity: hovered ? 1 : 0,
+          transition: 'opacity 0.2s ease',
+          pointerEvents: 'none',
+        }}>
+          Shared last-level cache · 32 MB · low-latency reuse pool
+        </div>
+      </div>
     </motion.div>
   );
 }
 
 const STAGES = ['FETCH', 'DECODE', 'EXECUTE', 'MEMORY', 'WRITE'];
 
+const IO_DESCRIPTIONS = {
+  'DDR5-6400': 'Dual-channel 6400 MT/s memory bus',
+  'PCIe 5.0': '32 GT/s GPU & NVMe interface',
+  'USB4 Gen3': '40 Gbps unified peripheral link',
+};
+
 function DDR5PortCell({ progress, label }) {
+  const [hovered, setHovered] = useState(false);
   const boxShadow = useTransform(progress, [0.76, 0.88, 1], [
     '0 0 0 rgba(201,168,76,0)',
     '0 0 28px rgba(201,168,76,0.55)',
@@ -142,11 +238,70 @@ function DDR5PortCell({ progress, label }) {
   ]);
   return (
     <motion.div
-      className="rounded-[3px] border-[0.5px] py-[3px] text-center font-['Syne_Mono',_monospace] text-[5.5px] tracking-[1.5px] text-[#c9a84cea]"
-      style={{ boxShadow, borderColor }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      className="rounded-[3px] border-[0.5px] py-[3px] text-center font-['Syne_Mono',_monospace] tracking-[1.5px] text-[#c9a84cea]"
+      style={{
+        boxShadow: hovered ? '0 0 18px rgba(201,168,76,0.7)' : boxShadow,
+        borderColor,
+        fontSize: hovered ? 8 : 5.5,
+        transform: hovered ? 'scale(1.2)' : 'scale(1)',
+        zIndex: hovered ? 10 : 'auto',
+        transition: 'transform 0.22s cubic-bezier(0.34,1.56,0.64,1), font-size 0.2s ease, box-shadow 0.2s ease',
+        cursor: 'default',
+        position: 'relative',
+      }}
     >
       {label}
+      <div style={{
+        fontSize: hovered ? 8 : 4.5,
+        letterSpacing: 0.5,
+        color: 'rgba(201,168,76,0.7)',
+        fontFamily: "'Syne Mono', monospace",
+        marginTop: 2,
+        lineHeight: 1.4,
+        opacity: hovered ? 1 : 0,
+        transition: 'opacity 0.2s ease',
+        pointerEvents: 'none',
+      }}>
+        {IO_DESCRIPTIONS[label]}
+      </div>
     </motion.div>
+  );
+}
+
+function IOPortCell({ label }) {
+  const [hovered, setHovered] = useState(false);
+  return (
+    <div
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
+      style={{
+        fontSize: hovered ? 7 : 5.5,
+        transform: hovered ? 'scale(1.2)' : 'scale(1)',
+        zIndex: hovered ? 10 : 'auto',
+        transition: 'transform 0.22s cubic-bezier(0.34,1.56,0.64,1), font-size 0.2s ease, box-shadow 0.2s ease',
+        boxShadow: hovered ? '0 0 14px rgba(201,168,76,0.55)' : 'none',
+        cursor: 'default',
+        position: 'relative',
+      }}
+      className="rounded-[3px] border-[0.5px] border-[#c9a84ca8] py-[3px] text-center font-['Syne_Mono',_monospace] tracking-[1.5px] text-[#c9a84cea]"
+    >
+      {label}
+      <div style={{
+        fontSize: hovered ? 8 : 4.5,
+        letterSpacing: 0.5,
+        color: 'rgba(201,168,76,0.7)',
+        fontFamily: "'Syne Mono', monospace",
+        marginTop: 2,
+        lineHeight: 1.4,
+        opacity: hovered ? 1 : 0,
+        transition: 'opacity 0.2s ease',
+        pointerEvents: 'none',
+      }}>
+        {IO_DESCRIPTIONS[label]}
+      </div>
+    </div>
   );
 }
 
@@ -316,12 +471,43 @@ function useCountUp(motionVal, decimals = 1) {
   return display;
 }
 
+function ScrollIndicator({ progress }) {
+  const opacity = useTransform(progress, [0.2, 0.24], [0.85, 0]);
+
+  return (
+    <motion.div
+      style={{ opacity }}
+      className="pointer-events-none absolute bottom-[6vh] left-1/2 z-50 flex -translate-x-1/2 flex-col items-center gap-3"
+    >
+      <span className="font-['Syne_Mono',monospace] text-[8px] uppercase tracking-[4px] text-[#c9a84cb8]">
+        Scroll to Explore
+      </span>
+      <div className="relative h-12 w-[1px] overflow-hidden bg-white/10">
+        <motion.div
+          animate={{ y: ["-100%", "200%"] }}
+          transition={{ duration: 1.8, repeat: Infinity, ease: "linear" }}
+          className="absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-transparent via-[#c9a84c] to-transparent"
+        />
+      </div>
+    </motion.div>
+  );
+}
+
 
 const Hero = ({ onContinueToMemory }) => {
   const scrollContainerRef = useRef(null);
   const conatinerRef = useRef(null);
   const handoffSentRef = useRef(false);
 
+  useEffect(() => {
+    // When the component mounts (user returns to CPU), reset the handoff lock
+    handoffSentRef.current = false;
+    
+    // Also reset the scroll position of the hero container
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = 0;
+    }
+  }, []);
   const { scrollYProgress } = useScroll({
     container: scrollContainerRef,
     target: conatinerRef,
@@ -394,7 +580,7 @@ const Hero = ({ onContinueToMemory }) => {
         <motion.div
           aria-hidden
           style={{
-            position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 40, opacity: 0.4, y: parallaxGrainY,
+            position: 'absolute', inset: '-150px', pointerEvents: 'none', zIndex: 40, opacity: 0.4, y: parallaxGrainY,
             backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
             backgroundSize: '160px 160px',
           }}
@@ -404,7 +590,7 @@ const Hero = ({ onContinueToMemory }) => {
         <motion.div
           aria-hidden
           style={{
-            position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 3, y: parallaxVignetteY,
+            position: 'absolute', inset: '-150px', pointerEvents: 'none', zIndex: 3, y: parallaxVignetteY,
             background: 'radial-gradient(ellipse 85% 85% at 50% 50%, transparent 25%, #070707 100%)',
           }}
         />
@@ -412,7 +598,7 @@ const Hero = ({ onContinueToMemory }) => {
         <motion.div
           aria-hidden
           style={{
-            position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 1, y: parallaxGlowY,
+            position: 'absolute', inset: '-150px', pointerEvents: 'none', zIndex: 1, y: parallaxGlowY,
             background: 'radial-gradient(ellipse 55% 50% at 50% 54%, rgba(201,168,76,0.055) 0%, transparent 70%)',
           }}
         />
@@ -475,22 +661,13 @@ const Hero = ({ onContinueToMemory }) => {
                 </div>
 
                 {/* L3 cache */}
-                <motion.div style={{ opacity: l3Opacity }}>
-                  <div className="rounded-[3px] border-[0.5px] border-[#c9a84ca1] bg-[#c9a84c05] py-1.25 text-center font-['Syne_Mono',monospace] text-[6.5px] tracking-[3.5px] text-[#c9a84cc6]">
-                    L3 CACHE · 32 MB
-                  </div>
-                </motion.div>
+                <L3CacheCell opacity={l3Opacity} />
 
                 {/* I/O row */}
                 <div className="grid grid-cols-3 gap-1.25">
                   <DDR5PortCell progress={smooth} label="DDR5-6400" />
                   {['PCIe 5.0', 'USB4 Gen3'].map((label) => (
-                    <div
-                      key={label}
-                      className="rounded-[3px] border-[0.5px] border-[#c9a84ca8] py-[3px] text-center font-['Syne_Mono',_monospace] text-[5.5px] tracking-[1.5px] text-[#c9a84cea]"
-                    >
-                      {label}
-                    </div>
+                    <IOPortCell key={label} label={label} />
                   ))}
                 </div>
               </div>
@@ -564,6 +741,115 @@ const Hero = ({ onContinueToMemory }) => {
           </motion.div>
         </motion.div>
 
+        {/* ── Left: Hover-to-explore hint ── */}
+        <motion.div
+          style={{
+            opacity: statOpacity,
+            position: 'absolute',
+            left: '7vw',
+            top: '50%',
+            y: statParallaxY,
+            zIndex: 20,
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'flex-start',
+            gap: 0,
+            transform: 'translateY(-50%)',
+          }}
+        >
+          {/* Vertical "INTERACTIVE" label */}
+          <div style={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 14,
+            marginBottom: 28,
+          }}>
+            {/* Vertical decorative trace */}
+            <div style={{
+              width: 1,
+              height: 80,
+              background: 'linear-gradient(to bottom, transparent, rgba(201,168,76,0.5) 40%, rgba(201,168,76,0.5) 60%, transparent)',
+              position: 'relative',
+              flexShrink: 0,
+            }}>
+              {/* Pulsing travel dot */}
+              <motion.div
+                animate={{ y: ['0%', '100%', '0%'] }}
+                transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  left: '50%',
+                  transform: 'translateX(-50%)',
+                  width: 4,
+                  height: 4,
+                  borderRadius: '50%',
+                  backgroundColor: 'rgba(201,168,76,0.9)',
+                  boxShadow: '0 0 8px rgba(201,168,76,0.7)',
+                }}
+              />
+            </div>
+            <div style={{
+              writingMode: 'vertical-lr',
+              transform: 'rotate(180deg)',
+              fontFamily: "'Syne Mono', monospace",
+              fontSize: 7,
+              letterSpacing: 5,
+              color: 'rgba(201,168,76,0.38)',
+              userSelect: 'none',
+            }}>
+              INTERACTIVE
+            </div>
+          </div>
+
+          {/* Main "hover" call-to-action */}
+          <div style={{
+            fontFamily: "'Cormorant Garamond', serif",
+            fontSize: 13,
+            fontWeight: 300,
+            fontStyle: 'italic',
+            color: 'rgba(240,237,230,0.55)',
+            lineHeight: 1.6,
+            letterSpacing: 0.3,
+            maxWidth: 110,
+            marginBottom: 20,
+          }}>
+            hover each<br />
+            <span style={{ color: 'rgba(201,168,76,0.8)', fontStyle: 'normal', fontWeight: 500, fontSize: 14 }}>
+              component
+            </span><br />
+            to explore
+          </div>
+
+          {/* Divider */}
+          <div style={{ width: 28, height: 1, backgroundColor: 'rgba(201,168,76,0.2)', marginBottom: 18 }} />
+
+          {/* Component count chips */}
+          {[
+            { label: '8', sub: 'CORES' },
+            { label: '1', sub: 'L3 CACHE' },
+            { label: '3', sub: 'I/O PORTS' },
+          ].map(({ label, sub }) => (
+            <div key={sub} style={{ marginBottom: 12, display: 'flex', alignItems: 'baseline', gap: 6 }}>
+              <span style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: 22,
+                fontWeight: 500,
+                color: 'rgba(240,237,230,0.6)',
+                lineHeight: 1,
+                letterSpacing: -0.5,
+              }}>{label}</span>
+              <span style={{
+                fontFamily: "'Syne Mono', monospace",
+                fontSize: 6,
+                letterSpacing: 3,
+                color: 'rgba(201,168,76,0.35)',
+              }}>{sub}</span>
+            </div>
+          ))}
+        </motion.div>
+
         {/* ── Bottom narrative ── */}
         <motion.div style={{
           opacity: copyOpacity,
@@ -588,6 +874,8 @@ const Hero = ({ onContinueToMemory }) => {
             <span style={{ color: 'rgba(201,168,76,0.8)', fontStyle: 'normal' }}> four billion times every second.</span>
           </p>
         </motion.div>
+
+        <ScrollIndicator progress={smooth} />
 
       </div>
       </section>
