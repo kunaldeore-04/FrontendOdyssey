@@ -157,64 +157,80 @@ function ShaderCore({ index, phase }) {
 
 // ─── Render pipeline stage ────────────────────────────────────────────────────
 const PIPE_STAGES = [
-  { name: 'VERTEX', icon: '▲', color: GOLD, desc: 'Transform & project vertices' },
-  { name: 'RASTER', icon: '▦', color: 'rgba(201,168,76,0.9)', desc: 'Convert triangles to fragments' },
-  { name: 'FRAGMENT', icon: '◈', color: TEAL, desc: 'Shade each pixel fragment' },
-  { name: 'OUTPUT', icon: '■', color: 'rgba(80,200,220,0.9)', desc: 'Blend & write to framebuffer' },
+  { name: 'INPUT', icon: '◰', color: GOLD, desc: 'Fetches raw vertex and index data from VRAM.' },
+  { name: 'VERTEX', icon: '▲', color: GOLD, desc: 'Transforms 3D coordinates into screen projections.' },
+  { name: 'GEOMETRY', icon: '⬡', color: GOLD, desc: 'Handles tessellation and complex primitive assembly.' },
+  { name: 'RASTER', icon: '▦', color: TEAL, desc: 'Converts projected triangles into pixel fragments.' },
+  { name: 'PIXEL', icon: '◈', color: TEAL, desc: 'Calculates lighting, textures, and final colors.' },
+  { name: 'OUTPUT', icon: '■', color: TEAL, desc: 'Blends fragments and writes to the framebuffer.' },
 ];
 
 function PipelineStage({ stage, index, smooth }) {
   const [hovered, setHovered] = useState(false);
-  const t = 0.30 + index * 0.07;
+  const t = 0.50 + index * 0.05;
   const opacity = useTransform(smooth, [t, t + 0.06], [0, 1]);
-  const y = useTransform(smooth, [t, t + 0.06], [20, 0]);
+  const scale = useTransform(smooth, [t, t + 0.06], [0.8, 1]);
+  
   return (
-    <motion.div style={{ opacity, y, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10, flex: 1 }}>
-      {/* Connector line */}
-      {index < PIPE_STAGES.length - 1 && (
-        <div style={{ position: 'absolute', right: '-50%', top: '50%', width: '100%', height: 1,
-          background: `linear-gradient(90deg, ${stage.color}, transparent)`, pointerEvents: 'none' }} />
-      )}
+    <motion.div style={{ opacity, scale, position: 'relative' }}>
       <motion.div
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        whileHover={{ scale: 1.08 }}
+        whileHover={{ y: -5, transition: { duration: 0.2 } }}
         style={{
-          width: '100%', borderRadius: 14,
+          borderRadius: 12,
           border: `1px solid ${hovered ? stage.color : GOLD_DIM}`,
           background: hovered
-            ? `linear-gradient(145deg, rgba(201,168,76,0.12), rgba(7,7,7,0.96))`
-            : 'linear-gradient(145deg, rgba(16,12,20,0.93), rgba(7,7,7,0.97))',
-          padding: '20px 16px', cursor: 'default', textAlign: 'center',
-          boxShadow: hovered ? `0 0 24px rgba(201,168,76,0.22), inset 0 0 20px rgba(201,168,76,0.04)` : 'none',
-          transition: 'box-shadow 0.22s ease, border-color 0.22s ease, background 0.22s ease'
+            ? `linear-gradient(145deg, rgba(201,168,76,0.08), rgba(7,7,7,0.98))`
+            : 'linear-gradient(145deg, rgba(20,20,25,0.95), rgba(7,7,7,1))',
+          padding: '16px 12px', cursor: 'default', textAlign: 'center',
+          boxShadow: hovered ? `0 15px 35px rgba(0,0,0,0.4), 0 0 15px ${stage.color}44` : 'none',
+          transition: 'all 0.3s cubic-bezier(0.23, 1, 0.32, 1)',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 6,
+          minHeight: 120, justifyContent: 'center'
         }}>
         <div style={{
-          fontFamily: "'Syne Mono',monospace", fontSize: 22, marginBottom: 10,
-          filter: hovered ? `drop-shadow(0 0 8px ${stage.color})` : 'none',
-          transition: 'filter 0.2s ease', color: stage.color
+          fontFamily: "'Syne Mono',monospace", fontSize: 24,
+          filter: hovered ? `drop-shadow(0 0 10px ${stage.color})` : 'none',
+          color: stage.color, transition: 'all 0.3s ease'
         }}>
           {stage.icon}
         </div>
         <div style={{
-          fontFamily: "'Syne Mono',monospace", fontSize: 8, letterSpacing: 2.5,
-          color: stage.color, textTransform: 'uppercase', marginBottom: 8
+          fontFamily: "'Syne Mono',monospace", fontSize: 8, letterSpacing: 1.5,
+          color: stage.color, textTransform: 'uppercase', fontWeight: 600
         }}>
           {stage.name}
         </div>
         <AnimatePresence>
           {hovered && (
-            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }}
-              style={{ fontFamily: "'Cormorant Garamond',serif", fontSize: 12, fontWeight: 300, color: 'rgba(240,237,230,0.55)', lineHeight: 1.5, overflow: 'hidden' }}>
+            <motion.div 
+              initial={{ opacity: 0, y: 5 }} 
+              animate={{ opacity: 1, y: 0 }} 
+              exit={{ opacity: 0, y: 5 }}
+              style={{ 
+                fontFamily: "'Cormorant Garamond',serif", 
+                fontSize: 10, color: 'rgba(240,237,230,0.6)', 
+                lineHeight: 1.3, position: 'absolute', bottom: -50,
+                width: 140, background: 'rgba(7,7,7,0.9)', padding: 10,
+                borderRadius: 4, border: `1px solid ${GOLD_DIM}`, zIndex: 100
+              }}>
               {stage.desc}
             </motion.div>
           )}
         </AnimatePresence>
       </motion.div>
-      {/* Pulsing dot */}
-      <motion.div animate={{ opacity: [0.35, 1, 0.35], boxShadow: [`0 0 4px ${stage.color}`, `0 0 14px ${stage.color}`, `0 0 4px ${stage.color}`] }}
-        transition={{ duration: 1.8 + index * 0.3, repeat: Infinity }}
-        style={{ width: 6, height: 6, borderRadius: '50%', background: stage.color }} />
+      {/* Animated connection point */}
+      <motion.div 
+        animate={{ 
+          boxShadow: hovered ? [`0 0 0px ${stage.color}`, `0 0 15px ${stage.color}`, `0 0 0px ${stage.color}`] : 'none' 
+        }}
+        transition={{ duration: 1.5, repeat: Infinity }}
+        style={{ 
+          position: 'absolute', bottom: -3, left: '50%', transform: 'translateX(-50%)',
+          width: 4, height: 4, borderRadius: '50%', background: stage.color, opacity: 0.8 
+        }} 
+      />
     </motion.div>
   );
 }
@@ -368,35 +384,74 @@ function ShaderCorePanel({ smooth, phase }) {
 // ─── Render pipeline panel (phase 2) ──────────────────────────────────────────
 function RenderPipelinePanel({ smooth, phase }) {
   const opacity = useTransform(smooth, [0.50, 0.58, 0.72, 0.80], [0, 1, 1, 0]);
-  const x       = useTransform(smooth, [0.50, 0.58], [-40, 0]);
+  const y = useTransform(smooth, [0.50, 0.58], [30, 0]);
+
   return (
-    <motion.div style={{ opacity, x, width: '100%', maxWidth: 780, margin: '0 auto' }}>
-      <div style={{ textAlign: 'center', marginBottom: 22 }}>
+    <motion.div style={{ opacity, y, width: '100%', maxWidth: 850, margin: '0 auto' }}>
+      <div style={{ textAlign: 'center', marginBottom: 40 }}>
         <span style={{ fontFamily: "'Syne Mono',monospace", fontSize: 10, letterSpacing: 4, color: GOLD, textTransform: 'uppercase' }}>
-          Render Pipeline
+          Hardware Graphics Pipeline
         </span>
         <p style={{
-          fontFamily: "'Cormorant Garamond',serif", fontSize: 'clamp(0.9rem,2vw,1.1rem)',
-          color: 'rgba(240,237,230,0.5)', margin: '8px auto 0', maxWidth: 440, lineHeight: 1.5
+          fontFamily: "'Cormorant Garamond',serif", fontSize: 'clamp(0.9rem, 2vw, 1.1rem)',
+          color: 'rgba(240,237,230,0.5)', margin: '8px auto 0', maxWidth: 480, lineHeight: 1.5
         }}>
-          Hover each stage to learn how a triangle becomes a pixel on your screen.
+          A sequential flow of 3D data transformation. From raw geometry to processed fragments.
         </p>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: 16, position: 'relative' }}>
-        {/* Arrow connectors */}
-        {[0,1,2].map(i => (
-          <motion.div key={i} style={{
-            position: 'absolute',
-            left: `${25 * (i + 1) - 1}%`, top: '38%',
-            width: 18, height: 18, zIndex: 5, pointerEvents: 'none',
-            display: 'flex', alignItems: 'center', justifyContent: 'center'
-          }} animate={{ opacity: [0.4, 0.9, 0.4] }} transition={{ duration: 1.5 + i * 0.3, repeat: Infinity }}>
-            <span style={{ color: GOLD, fontSize: 12 }}>→</span>
-          </motion.div>
-        ))}
-        {PIPE_STAGES.map((stage, i) => (
-          <PipelineStage key={stage.name} stage={stage} index={i} smooth={smooth} />
-        ))}
+
+      <div style={{ position: 'relative', padding: '0 40px' }}>
+        {/* S-Curve Path SVG */}
+        <svg style={{ position: 'absolute', top: '50%', left: 0, width: '100%', height: 200, transform: 'translateY(-50%)', pointerEvents: 'none', zIndex: 0 }}
+             viewBox="0 0 800 200">
+          <motion.path
+            d="M 40 50 L 760 50 C 780 50 780 150 760 150 L 40 150"
+            fill="none"
+            stroke={GOLD_DIM}
+            strokeWidth="1"
+            strokeDasharray="4 4"
+            initial={{ pathLength: 0 }}
+            animate={{ pathLength: 1 }}
+            transition={{ duration: 2, ease: "easeInOut" }}
+          />
+          {/* Data particles animation */}
+          <motion.circle r="2" fill={GOLD}>
+            <animateMotion
+              dur="4s"
+              repeatCount="indefinite"
+              path="M 40 50 L 760 50 C 780 50 780 150 760 150 L 40 150"
+            />
+          </motion.circle>
+        </svg>
+
+        <div style={{ 
+          display: 'grid', 
+          gridTemplateColumns: 'repeat(3, 1fr)', 
+          gap: '60px 30px',
+          position: 'relative',
+          zIndex: 1
+        }}>
+          {PIPE_STAGES.map((stage, i) => {
+            // Reorder for visual S-curve: 0,1,2 then 5,4,3 (top row left-to-right, bottom row right-to-left)
+            const visualIndex = i < 3 ? i : (5 - (i - 3));
+            return (
+              <div key={stage.name} style={{ gridColumn: (visualIndex % 3) + 1, gridRow: Math.floor(i / 3) + 1 }}>
+                <PipelineStage stage={stage} index={i} smooth={smooth} />
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div style={{ marginTop: 60, display: 'flex', justifyContent: 'center', gap: 40 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: GOLD }} />
+          <span style={{ fontFamily: "'Syne Mono',monospace", fontSize: 8, color: GOLD, letterSpacing: 1.5 }}>GEOMETRY STAGES</span>
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <div style={{ width: 8, height: 8, borderRadius: '50%', background: TEAL }} />
+          <span style={{ fontFamily: "'Syne Mono',monospace", fontSize: 8, color: TEAL, letterSpacing: 1.5 }}>RASTER STAGES</span>
+        </div>
       </div>
     </motion.div>
   );
