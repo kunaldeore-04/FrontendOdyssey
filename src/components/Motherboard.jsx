@@ -181,8 +181,8 @@ function DataTrace({ label, from, to, color = GOLD, delay = 0 }) {
 
 // ─── Intro panel (phase 0) ────────────────────────────────────────────────────
 function MBIntroPanel({ smooth }) {
-  const opacity = useTransform(smooth, [0, 0.08, 0.22, 0.28], [0, 1, 1, 0]);
-  const y = useTransform(smooth, [0, 0.08, 0.26], [32, 0, -24]);
+  const opacity = useTransform(smooth, [0, 0.06, 0.10, 0.15], [0, 1, 1, 0]);
+  const y = useTransform(smooth, [0, 0.06, 0.20], [32, 0, -24]);
   return (
     <motion.div style={{ opacity, y, textAlign: 'center', pointerEvents: 'none' }}>
       <motion.div animate={{ y: [0, -5, 0] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
@@ -232,8 +232,8 @@ function MBIntroPanel({ smooth }) {
 
 // ─── PCB component map (phase 1) ──────────────────────────────────────────────
 function PCBMapPanel({ smooth, phase }) {
-  const opacity = useTransform(smooth, [0.24, 0.32, 0.48, 0.56], [0, 1, 1, 0]);
-  const scale = useTransform(smooth, [0.24, 0.32], [0.93, 1]);
+  const opacity = useTransform(smooth, [0.14, 0.18, 0.25, 0.3], [0, 1, 1, 0]);
+  const scale = useTransform(smooth, [0.14, 0.18], [0.93, 1]);
   return (
     <motion.div style={{ opacity, scale, width: '100%', maxWidth: 780, margin: '0 auto' }}>
       <div style={{ textAlign: 'center', marginBottom: 22 }}>
@@ -266,8 +266,8 @@ function PCBMapPanel({ smooth, phase }) {
 
 // ─── Data traces panel (phase 2) ──────────────────────────────────────────────
 function DataTracesPanel({ smooth, phase }) {
-  const opacity = useTransform(smooth, [0.50, 0.58, 0.72, 0.80], [0, 1, 1, 0]);
-  const x = useTransform(smooth, [0.50, 0.58], [-40, 0]);
+  const opacity = useTransform(smooth, [0.3, 0.34, 0.55, 0.6], [0, 1, 1, 0]);
+  const x = useTransform(smooth, [0.30, 0.34], [-40, 0]);
   return (
     <motion.div style={{ opacity, x, width: '100%', maxWidth: 720, margin: '0 auto' }}>
       <motion.section style={{
@@ -353,8 +353,8 @@ function ChipsetNode({ chip, phase, delay }) {
 }
 
 function ChipsetPanel({ smooth, phase }) {
-  const opacity = useTransform(smooth, [0.74, 0.82, 0.92, 0.97], [0, 1, 1, 0]);
-  const y = useTransform(smooth, [0.74, 0.82], [40, 0]);
+  const opacity = useTransform(smooth, [0.60, 0.64, 0.68, 0.72], [0, 1, 1, 0]);
+  const y = useTransform(smooth, [0.60, 0.64], [40, 0]);
   return (
     <motion.div style={{ opacity, y, width: '100%', maxWidth: 780, margin: '0 auto' }}>
       <div style={{ textAlign: 'center', marginBottom: 22 }}>
@@ -388,8 +388,8 @@ const ALL_COMPONENTS = [
 ];
 
 function OverviewPanel({ smooth, phase }) {
-  const opacity = useTransform(smooth, [0.92, 0.98], [0, 1]);
-  const y = useTransform(smooth, [0.92, 0.98], [32, 0]);
+  const opacity = useTransform(smooth, [0.7, 0.82], [0, 1]);
+  const y = useTransform(smooth, [0.78, 0.80], [32, 0]);
   return (
     <motion.div style={{ opacity, y, width: '100%', maxWidth: 900, margin: '0 auto' }}>
       <div style={{ textAlign: 'center', marginBottom: 28 }}>
@@ -440,12 +440,12 @@ const Motherboard = ({ arrivalKey = 0, onBack }) => {
 
   const [scrollPhase, setScrollPhase] = useState(0);
   useMotionValueEvent(smooth, 'change', (v) => {
-    if (v < 0.26) setScrollPhase(0);
-    else if (v < 0.54) setScrollPhase(1);
-    else if (v < 0.78) setScrollPhase(2);
-    else if (v < 0.94) setScrollPhase(3);
-    else setScrollPhase(4);
-  });
+     if      (v < 0.15) setScrollPhase(0);
+     else if (v < 0.36) setScrollPhase(1);
+     else if (v < 0.65) setScrollPhase(2);
+     else if (v < 0.78) setScrollPhase(3);
+     else               setScrollPhase(4);
+   });
 
   // scroll-up handoff → GPU
   useMotionValueEvent(scrollY, 'change', (v) => {
@@ -468,7 +468,7 @@ const Motherboard = ({ arrivalKey = 0, onBack }) => {
         overflowX: 'hidden', overflowY: 'auto', WebkitOverflowScrolling: 'touch'
       }}>
 
-      <ScrollProgressBar progress={smooth} />
+      <ScrollProgressBar progress={scrollYProgress} />
       <PhaseIndicator currentPhase={scrollPhase} />
       <BgLayers scrollYProgress={smooth} />
 

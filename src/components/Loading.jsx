@@ -46,7 +46,7 @@ export default function Loading({ onPowerOn }) {
     setTimeout(() => {
       setPhase(2);
       if (onPowerOn) onPowerOn();
-    }, BOOT_DURATION*7); 
+    }, BOOT_DURATION*4); 
   };
 
   return (
@@ -172,7 +172,7 @@ export default function Loading({ onPowerOn }) {
               </span>
               <motion.div 
                 animate={{ opacity: [1, 0.6, 1] }}
-                transition={{ duration: .6, repeat: Infinity }}
+                transition={{ duration: .4, repeat: Infinity }}
                 style={{ width: 4, height: 4, borderRadius: '50%', backgroundColor: GOLD }} 
               />
             </div>
@@ -185,7 +185,7 @@ export default function Loading({ onPowerOn }) {
             <div style={{ marginTop: 24, height: 1, width: '100%', backgroundColor: 'rgba(201,168,76,0.6)' }}>
               <motion.div
                 animate={{ width: [0, '90%', '90%','100%'] }}
-                transition={{ duration: bootLines.length * 0.2 +5, ease: 'easeInOut' ,times: [0, 0.8, 0.95, 1]}}
+                transition={{ duration: bootLines.length * 0.15 +2, ease: 'easeInOut' ,times: [0, 0.8, 0.95, 1]}}
                 style={{ height: '100%', backgroundColor: GOLD, boxShadow: `0 0 10px ${GOLD}` }}
               />
             </div>

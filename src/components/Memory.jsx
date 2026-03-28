@@ -455,8 +455,8 @@ function PhaseIndicator({ currentPhase }) {
 
 // ─── Hero-style intro panel (sticky phase 0) ──────────────────────────────────
 function MemoryIntroPanel({ smooth }) {
-  const opacity = useTransform(smooth, [0, 0.08, 0.22, 0.28], [0, 1, 1, 0]);
-  const y = useTransform(smooth, [0, 0.08, 0.26], [32, 0, -24]);
+  const opacity = useTransform(smooth, [0, 0.04, 0.10, 0.15], [0, 1, 1, 0]);
+  const y = useTransform(smooth, [0, 0.04, 0.15], [32, 0, -24]);
   const iconBob = { y: [0, -5, 0], transition: { duration: 4, repeat: Infinity, ease: 'easeInOut' } };
   return (
     <motion.div style={{ opacity, y, textAlign: 'center', pointerEvents: 'none' }}>
@@ -508,9 +508,9 @@ function MemoryIntroPanel({ smooth }) {
 
 // ─── DIMM zoom panel (sticky phase 1) ────────────────────────────────────────
 function DimmZoomPanel({ smooth, phase }) {
-  const opacity = useTransform(smooth, [0.24, 0.32, 0.48, 0.56], [0, 1, 1, 0]);
-  const scale = useTransform(smooth, [0.24, 0.32], [0.92, 1]);
-  const zoom = useTransform(smooth, [0.32, 0.52], [1, 1.12]);
+  const opacity = useTransform(smooth, [0.15, 0.2, 0.35, 0.4], [0, 1, 1, 0]);
+  const scale = useTransform(smooth, [0.15, 0.32], [0.92, 1]);
+  const zoom = useTransform(smooth, [0.20, 0.35], [1, 1.12]);
   return (
     <motion.div style={{ opacity, scale }}>
       <div style={{ textAlign: 'center', marginBottom: 28 }}>
@@ -534,8 +534,8 @@ function DimmZoomPanel({ smooth, phase }) {
 
 // ─── Address bus panel (sticky phase 2) ──────────────────────────────────────
 function AddressBusPanel({ smooth, phase, ingressFlash }) {
-  const opacity = useTransform(smooth, [0.50, 0.58, 0.72, 0.80], [0, 1, 1, 0]);
-  const x = useTransform(smooth, [0.50, 0.58], [-40, 0]);
+  const opacity = useTransform(smooth, [0.40, 0.45, 0.6, 0.65], [0, 1, 1, 0]);
+  const x = useTransform(smooth, [0.40, 0.45], [-40, 0]);
   return (
     <motion.div style={{ opacity, x, width: '100%', maxWidth: 700, margin: '0 auto' }}>
       <motion.section style={{
@@ -598,8 +598,8 @@ function AddressBusPanel({ smooth, phase, ingressFlash }) {
 
 // ─── Read/Write ops panel (sticky phase 3) ────────────────────────────────────
 function RWOpsPanel({ smooth, phase }) {
-  const opacity = useTransform(smooth, [0.74, 0.82, 0.92, 0.97], [0, 1, 1, 0]);
-  const y = useTransform(smooth, [0.74, 0.82], [40, 0]);
+  const opacity = useTransform(smooth, [0.65, 0.67, 0.70, 0.72], [0, 1, 1, 0]);
+  const y = useTransform(smooth, [0.65, 0.7], [40, 0]);
   return (
     <motion.div style={{ opacity, y, width: '100%' }}>
       <div style={{
@@ -694,8 +694,8 @@ function RWOpsPanel({ smooth, phase }) {
 
 // ─── Stats panel (final phase) ───────────────────────────────────────────────
 function StatsPanel({ smooth, phase }) {
-  const opacity = useTransform(smooth, [0.92, 0.98], [0, 1]);
-  const y = useTransform(smooth, [0.92, 0.98], [32, 0]);
+  const opacity = useTransform(smooth, [0.7, 0.75], [0, 1]);
+  const y = useTransform(smooth, [0.7, 0.75], [32, 0]);
   return (
     <motion.div style={{ opacity, y, width: '100%', maxWidth: 900, margin: '0 auto' }}>
       <div style={{ textAlign: 'center', marginBottom: 28 }}>
@@ -754,11 +754,11 @@ const Memory = ({ arrivalKey = 0, onBack, onContinue }) => {
   // scroll phase index (for side indicator)
   const [scrollPhase, setScrollPhase] = useState(0);
   useMotionValueEvent(smooth, 'change', (v) => {
-    if (v < 0.26) setScrollPhase(0);
-    else if (v < 0.54) setScrollPhase(1);
-    else if (v < 0.78) setScrollPhase(2);
-    else if (v < 0.94) setScrollPhase(3);
-    else setScrollPhase(4);
+    if      (v < 0.15) setScrollPhase(0);
+    else if (v < 0.36) setScrollPhase(1);
+    else if (v < 0.65) setScrollPhase(2);
+    else if (v < 0.7) setScrollPhase(3);
+    else               setScrollPhase(4);
   });
 
   // back handoff on over-scroll up
@@ -779,7 +779,7 @@ const Memory = ({ arrivalKey = 0, onBack, onContinue }) => {
     if (!el || !onContinue) return;
     const check = () => {
       if (handoffRef.current) return;
-      if (el.scrollTop + el.clientHeight >= el.scrollHeight - 6) {
+      if (el.scrollTop + el.clientHeight >= el.scrollHeight -4) {
         handoffRef.current = true;
         onContinue();
       }

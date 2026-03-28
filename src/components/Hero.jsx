@@ -1,7 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { motion, useScroll, useTransform, useSpring, useMotionValueEvent, useMotionTemplate } from "framer-motion";
 
-/** First I/O cell (DDR5-6400): center ≈ this origin for portal zoom */
 const DDR_ORIGIN = "17% 92%";
 
 function TraceWarpGrid({ progress }) {
@@ -107,6 +106,8 @@ function CoreCell({ index, progress }) {
     <motion.div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      whileHover={{ scale: 1.18 }}
+      transition={{ scale: { type: 'spring', stiffness: 400, damping: 25 } }}
       style={{
         opacity,
         backgroundColor: bg,
@@ -121,14 +122,8 @@ function CoreCell({ index, progress }) {
         alignItems: 'center',
         justifyContent: 'center',
         position: 'relative',
-        overflow: 'hidden',
         cursor: 'default',
-        transition: 'box-shadow 0.25s ease',
-        transform: hovered ? 'scale(1.18)' : 'scale(1)',
-        zIndex: hovered ? 10 : 'auto',
-        transitionProperty: 'transform, box-shadow',
-        transitionDuration: '0.22s',
-        transitionTimingFunction: 'cubic-bezier(0.34,1.56,0.64,1)',
+        zIndex: hovered ? 10 : 1
       }}
     >
       {/* transistor grid lines */}
@@ -179,19 +174,19 @@ function L3CacheCell({ opacity }) {
       style={{ opacity }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      whileHover={{ scale: 1.02 }}
+      transition={{ scale: { type: 'spring', stiffness: 400, damping: 25 } }}
     >
       <div
         style={{
-          transform: hovered ? 'scale(1.07)' : 'scale(1)',
-          transition: 'transform 0.22s cubic-bezier(0.34,1.56,0.64,1), box-shadow 0.2s ease',
           boxShadow: hovered ? '0 0 16px rgba(201,168,76,0.5)' : 'none',
-          borderRadius: 3,
+          borderRadius: 5,
           cursor: 'default',
         }}
         className="rounded-[3px] border-[0.5px] border-[#c9a84ca1] bg-[#c9a84c05] py-1.25 text-center font-['Syne_Mono',monospace] tracking-[3.5px] text-[#c9a84cc6]"
       >
         <span style={{
-          fontSize: hovered ? 12 : 6.5,
+          fontSize: hovered ? 12 : 8,
           fontWeight: hovered ? 700 : 400,
           color: hovered ? 'rgba(201,168,76,1)' : 'rgba(201,168,76,0.78)',
           transition: 'font-size 0.2s ease, font-weight 0.2s ease, color 0.2s ease',
@@ -200,7 +195,7 @@ function L3CacheCell({ opacity }) {
           L3 CACHE · 32 MB
         </span>
         <div style={{
-          fontSize: hovered ? 8 : 4.5,
+          fontSize: hovered ? 7 : 6,
           letterSpacing: 0.5,
           color: 'rgba(201,168,76,0.7)',
           fontFamily: "'Syne Mono', monospace",
@@ -222,10 +217,10 @@ const STAGES = ['FETCH', 'DECODE', 'EXECUTE', 'MEMORY', 'WRITE'];
 const IO_DESCRIPTIONS = {
   'DDR5-6400': 'Dual-channel 6400 MT/s memory bus',
   'PCIe 5.0': '32 GT/s GPU & NVMe interface',
-  'USB4 Gen3': '40 Gbps unified peripheral link',
+  'USB 4 Gen 3': '40 Gbps unified peripheral link',
 };
 
-function DDR5PortCell({ progress, label }) {
+function IOCell({ progress, label }) {
   const [hovered, setHovered] = useState(false);
   const boxShadow = useTransform(progress, [0.76, 0.88, 1], [
     '0 0 0 rgba(201,168,76,0)',
@@ -240,23 +235,22 @@ function DDR5PortCell({ progress, label }) {
     <motion.div
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
+      whileHover={{ scale: 1.02, zIndex: 10 }}
+      transition={{ scale: { type: 'spring', stiffness: 400, damping: 25 } }}
       className="rounded-[3px] border-[0.5px] py-[3px] text-center font-['Syne_Mono',_monospace] tracking-[1.5px] text-[#c9a84cea]"
       style={{
         boxShadow: hovered ? '0 0 18px rgba(201,168,76,0.7)' : boxShadow,
         borderColor,
         fontSize: hovered ? 8 : 5.5,
-        transform: hovered ? 'scale(1.2)' : 'scale(1)',
-        zIndex: hovered ? 10 : 'auto',
-        transition: 'transform 0.22s cubic-bezier(0.34,1.56,0.64,1), font-size 0.2s ease, box-shadow 0.2s ease',
         cursor: 'default',
         position: 'relative',
       }}
     >
       {label}
       <div style={{
-        fontSize: hovered ? 8 : 4.5,
+        fontSize: hovered ? 5 : 4.5,
         letterSpacing: 0.5,
-        color: 'rgba(201,168,76,0.7)',
+        color: 'rgba(201,168,76,1)',
         fontFamily: "'Syne Mono', monospace",
         marginTop: 2,
         lineHeight: 1.4,
@@ -267,41 +261,6 @@ function DDR5PortCell({ progress, label }) {
         {IO_DESCRIPTIONS[label]}
       </div>
     </motion.div>
-  );
-}
-
-function IOPortCell({ label }) {
-  const [hovered, setHovered] = useState(false);
-  return (
-    <div
-      onMouseEnter={() => setHovered(true)}
-      onMouseLeave={() => setHovered(false)}
-      style={{
-        fontSize: hovered ? 7 : 5.5,
-        transform: hovered ? 'scale(1.2)' : 'scale(1)',
-        zIndex: hovered ? 10 : 'auto',
-        transition: 'transform 0.22s cubic-bezier(0.34,1.56,0.64,1), font-size 0.2s ease, box-shadow 0.2s ease',
-        boxShadow: hovered ? '0 0 14px rgba(201,168,76,0.55)' : 'none',
-        cursor: 'default',
-        position: 'relative',
-      }}
-      className="rounded-[3px] border-[0.5px] border-[#c9a84ca8] py-[3px] text-center font-['Syne_Mono',_monospace] tracking-[1.5px] text-[#c9a84cea]"
-    >
-      {label}
-      <div style={{
-        fontSize: hovered ? 8 : 4.5,
-        letterSpacing: 0.5,
-        color: 'rgba(201,168,76,0.7)',
-        fontFamily: "'Syne Mono', monospace",
-        marginTop: 2,
-        lineHeight: 1.4,
-        opacity: hovered ? 1 : 0,
-        transition: 'opacity 0.2s ease',
-        pointerEvents: 'none',
-      }}>
-        {IO_DESCRIPTIONS[label]}
-      </div>
-    </div>
   );
 }
 
@@ -451,6 +410,7 @@ function PipelineRow({ progress }) {
         y: rowY,
         display: "flex",
         alignItems: "center",
+        pointerEvents: 'none', // Prevent blocking hover events on zoomed elements
       }}
     >
       {STAGES.map((s, i) => (
@@ -494,6 +454,8 @@ function ScrollIndicator({ progress }) {
 }
 
 
+
+
 const Hero = ({ onContinueToMemory }) => {
   const scrollContainerRef = useRef(null);
   const conatinerRef = useRef(null);
@@ -502,7 +464,7 @@ const Hero = ({ onContinueToMemory }) => {
   useEffect(() => {
     // When the component mounts (user returns to CPU), reset the handoff lock
     handoffSentRef.current = false;
-    
+
     // Also reset the scroll position of the hero container
     if (scrollContainerRef.current) {
       scrollContainerRef.current.scrollTop = 0;
@@ -574,310 +536,295 @@ const Hero = ({ onContinueToMemory }) => {
       className="relative h-full w-full overflow-x-hidden overflow-y-auto overscroll-y-none"
     >
       <section ref={conatinerRef} className="relative h-[400vh] bg-[#070707]">
-      <div className="sticky top-0 flex h-dvh w-full flex-col items-center justify-center overflow-hidden">
+        <div className="sticky top-0 flex h-dvh w-full flex-col items-center justify-center overflow-hidden gap-5 ">
 
-        {/* Grain texture — slow drift */}
-        <motion.div
-          aria-hidden
-          style={{
-            position: 'absolute', inset: '-150px', pointerEvents: 'none', zIndex: 40, opacity: 0.4, y: parallaxGrainY,
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
-            backgroundSize: '160px 160px',
-          }}
-        />
+          {/* Grain texture — slow drift */}
+          <motion.div
+            aria-hidden
+            style={{
+              position: 'absolute', inset: '-150px', pointerEvents: 'none', zIndex: 40, opacity: 0.4, y: parallaxGrainY,
+              backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
+              backgroundSize: '160px 160px',
+            }}
+          />
 
-        {/* Vignette — mid depth */}
-        <motion.div
-          aria-hidden
-          style={{
-            position: 'absolute', inset: '-150px', pointerEvents: 'none', zIndex: 3, y: parallaxVignetteY,
-            background: 'radial-gradient(ellipse 85% 85% at 50% 50%, transparent 25%, #070707 100%)',
-          }}
-        />
-
-        <motion.div
-          aria-hidden
-          style={{
-            position: 'absolute', inset: '-150px', pointerEvents: 'none', zIndex: 1, y: parallaxGlowY,
-            background: 'radial-gradient(ellipse 55% 50% at 50% 54%, rgba(201,168,76,0.055) 0%, transparent 70%)',
-          }}
-        />
-
-        <motion.div style={{ y: parallaxGridY }} className="pointer-events-none absolute inset-0 z-[4]">
-          <TraceWarpGrid progress={smooth} />
-        </motion.div>
-
-        <div
-          className="relative z-10"
-          style={{ perspective: 1200 }}
-        >
-        <motion.div
-          className="flex flex-col items-center gap-12"
-          style={{
-            scale: chipScale,
-            opacity: chipOpacity,
-            rotateX: chipRotateX,
-            rotateY: chipRotateY,
-            y: chipParallaxY,
-            transformStyle: "preserve-3d",
-          }}
-        >
-          <motion.div style={{ opacity: headlineOpacity, y: headlineCombinedY }} className="text-center">
-            <div className="text-xs tracking-[5px] text-amber-400 font-mono uppercase">
-              Section 2 : The Brain
-            </div>
-            <h2 className="font-['Cormorant_Garamond',serif] text-5xl font-medium text-amber-50 m-0 leading-[1.1]">
-              Central Processing Unit
-            </h2>
-            <div className="mx-auto mt-4 h-px w-11 bg-[#c9a84c74]" />
-          </motion.div>
+          {/* Vignette — mid depth */}
+          <motion.div
+            aria-hidden
+            style={{
+              position: 'absolute', inset: '-150px', pointerEvents: 'none', zIndex: 3, y: parallaxVignetteY,
+              background: 'radial-gradient(ellipse 85% 85% at 50% 50%, transparent 25%, #070707 100%)',
+            }}
+          />
 
           <motion.div
-            className="relative"
+            aria-hidden
             style={{
-              scale: portalDieZoom,
-              transformOrigin: DDR_ORIGIN,
+              position: 'absolute', inset: '-150px', pointerEvents: 'none', zIndex: 1, y: parallaxGlowY,
+              background: 'radial-gradient(ellipse 55% 50% at 50% 54%, rgba(201,168,76,0.055) 0%, transparent 70%)',
             }}
+          />
+
+          <motion.div style={{ y: parallaxGridY }} className="pointer-events-none absolute inset-0 z-4">
+            <TraceWarpGrid progress={smooth} />
+          </motion.div>
+
+          <div
+            className="relative z-10"
+            style={{ perspective: 1200 }}
           >
-            {/* Die body */}
-            <div className="relative h-71 w-76 overflow-hidden rounded-xl border border-[#c9a84c2e] bg-[linear-gradient(150deg,#131211_0%,#0c0b0b_60%,#111010_100%)] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.03),0_40px_120px_rgba(0,0,0,0.85),0_0_60px_rgba(201,168,76,0.04)]">
+            <motion.div
+              className="flex flex-col items-center gap-5 md:gap-10"
+              style={{
+                scale: chipScale,
+                opacity: chipOpacity,
+                rotateX: chipRotateX,
+                rotateY: chipRotateY,
+                y: chipParallaxY,
+                transformStyle: "preserve-3d",
+              }}
+            >
+              <motion.div style={{ opacity: headlineOpacity, y: headlineCombinedY }} className="text-center px-4 w-full">
+                <div className="text-[10px] md:text-xs tracking-[5px] text-amber-400 font-mono uppercase">
+                  Section 2 : The Brain
+                </div>
+                <h2 className="font-['Cormorant_Garamond',serif] text-4xl md:text-5xl font-medium text-amber-50 m-0 leading-[1.1]">
+                  Central Processing Unit
+                </h2>
+                <div className="mx-auto mt-4 h-px w-11 bg-[#c9a84c74]" />
+              </motion.div>
 
-              {/* top edge highlight */}
-              <div className="absolute inset-x-0 top-0 z-15 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.1)_50%,transparent)]" />
+              <motion.div
+                className="relative"
+                style={{
+                  scale: portalDieZoom,
+                  transformOrigin: DDR_ORIGIN,
+                }}
+              >
+                {/* Die body */}
+                <div className="relative h-71 w-76 overflow-hidden rounded-xl border border-[#c9a84c2e] bg-[linear-gradient(150deg,#131211_0%,#0c0b0b_60%,#111010_100%)] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.03),0_40px_120px_rgba(0,0,0,0.85),0_0_60px_rgba(201,168,76,0.04)]">
 
-              <DieSweep progress={smooth} />
+                  {/* top edge highlight */}
+                  <div className="absolute inset-x-0 top-0 z-15 h-px bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.1)_50%,transparent)]" />
 
-              <div className="flex h-full flex-col gap-2.5 p-4.5">
-                {/* Die label */}
-                <div className="text-center font-['Syne_Mono',monospace] text-[8px] tracking-[4.5px] text-[#c9a84ccd]">
-                  CORTEX-V8 · 5nm · 8-CORE
+                  <DieSweep progress={smooth} />
+
+                  <div className="flex h-full flex-col gap-2.5 p-4.5">
+                    {/* Die label */}
+                    <div className="text-center font-['Syne_Mono',monospace] text-[8px] tracking-[4.5px] text-[#c9a84ccd]">
+                      CORTEX-V8 · 5nm · 8-CORE
+                    </div>
+
+                    {/* Cores 4×2 */}
+                    <div className="grid flex-1 grid-cols-4 gap-1.75">
+                      {Array.from({ length: 8 }, (_, i) => (
+                        <CoreCell key={i} index={i} progress={smooth} />
+                      ))}
+                    </div>
+
+                    {/* L3 cache */}
+                    <L3CacheCell opacity={l3Opacity} />
+
+                    {/* I/O row */}
+                    <div className="grid grid-cols-3 gap-1.25">
+                      {['DDR5-6400', 'PCIe 5.0', 'USB 4 Gen 3'].map((label) => (
+                        <IOCell key={label} label={label} progress={smooth} />
+                      ))}
+                    </div>
+                  </div>
                 </div>
 
-                {/* Cores 4×2 */}
-                <div className="grid flex-1 grid-cols-4 gap-1.75">
-                  {Array.from({ length: 8 }, (_, i) => (
-                    <CoreCell key={i} index={i} progress={smooth} />
-                  ))}
-                </div>
+                {/* Corner fiducials */}
+                {[
+                  "top-[-7px] left-[-7px]",
+                  "top-[-7px] right-[-7px]",
+                  "bottom-[-7px] left-[-7px]",
+                  "bottom-[-7px] right-[-7px]",
+                ].map((pos, i) => (
+                  <div
+                    key={i}
+                    className={`absolute h-[10px] w-[10px] rounded-[1px] border border-[#c9a84c47] ${pos}`}
+                  />
+                ))}
+              </motion.div>
+              <div className="flex flex-col items-center">
+                <PipelineRow progress={smooth} />
+                <MemoryEgressCue progress={smooth} />
+              </div>
+            </motion.div>
+          </div>
+          <motion.div
+            style={{
+              opacity: statOpacity,
+              x: statX,
+              position: 'absolute',
+              right: '7vw',
+              top: '50%',
+              y: '-50%',
+              zIndex: 20,
+              textAlign: 'right',
+              pointerEvents: 'none',
+            }}
+            className="hidden lg:block"
+          >
+            <motion.div style={{ y: statParallaxY }}>
+              <div style={{
+                fontFamily: "'Cormorant Garamond', serif",
+                fontSize: 100, fontWeight: 600,
+                color: '#F0EDE6', lineHeight: 1,
+                letterSpacing: -4,
+                textShadow: '0 0 100px rgba(201,168,76,0.18)',
+              }}>
+                {ghzDisplay}
+              </div>
+              <div style={{
+                fontFamily: "'Syne Mono', monospace",
+                fontSize: 9, letterSpacing: 6,
+                color: 'rgba(201,168,76,0.45)',
+                marginTop: 6,
+              }}>
+                GHz CLOCK
+              </div>
+              <div style={{ width: '100%', height: 1, backgroundColor: 'rgba(201,168,76,0.18)', margin: '14px 0' }} />
+              <div style={{
+                fontFamily: "'Syne Mono', monospace",
+                fontSize: 7.5, letterSpacing: 2.5,
+                color: 'rgba(201,168,76,0.7)',
+              }}>
+                4.2 × 10⁹ cycles / sec
+              </div>
+              <div style={{
+                fontFamily: "'Syne Mono', monospace",
+                fontSize: 7.5, letterSpacing: 2.5,
+                color: 'rgba(201,168,76,0.7)',
+                marginTop: 6,
+              }}>
+                8 cores · 16 threads
+              </div>
+            </motion.div>
+          </motion.div>
 
-                {/* L3 cache */}
-                <L3CacheCell opacity={l3Opacity} />
-
-                {/* I/O row */}
-                <div className="grid grid-cols-3 gap-1.25">
-                  <DDR5PortCell progress={smooth} label="DDR5-6400" />
-                  {['PCIe 5.0', 'USB4 Gen3'].map((label) => (
-                    <IOPortCell key={label} label={label} />
-                  ))}
-                </div>
+          {/* ── Left: Hover-to-explore hint ── */}
+          <motion.div
+            style={{
+              opacity: statOpacity,
+              position: 'absolute',
+              left: '7vw',
+              top: '50%',
+              y: statParallaxY,
+              zIndex: 20,
+              transform: 'translateY(-50%)',
+              pointerEvents: 'none',
+            }}
+            className="hidden lg:flex flex-col items-start gap-0"
+          >
+            {/* Vertical "INTERACTIVE" label */}
+            <div style={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 14,
+              marginBottom: 28,
+            }}>
+              {/* Vertical decorative trace */}
+              <div style={{
+                width: 1,
+                height: 80,
+                background: 'linear-gradient(to bottom, transparent, rgba(201,168,76,0.5) 40%, rgba(201,168,76,0.5) 60%, transparent)',
+                position: 'relative',
+                flexShrink: 0,
+              }}>
+              </div>
+              <div style={{
+                writingMode: 'vertical-lr',
+                transform: 'rotate(180deg)',
+                fontFamily: "'Syne Mono', monospace",
+                fontSize: 7,
+                letterSpacing: 5,
+                color: 'rgba(201,168,76,0.38)',
+                userSelect: 'none',
+              }}>
+                CPU
               </div>
             </div>
 
-            {/* Corner fiducials */}
+            {/* Main "hover" call-to-action */}
+            <div style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontSize: 13,
+              fontWeight: 300,
+              fontStyle: 'italic',
+              color: 'rgba(240,237,230,0.55)',
+              lineHeight: 1.6,
+              letterSpacing: 0.3,
+              maxWidth: 110,
+              marginBottom: 20,
+            }}>
+              Hover each<br />
+              <span style={{ color: 'rgba(201,168,76,0.8)', fontStyle: 'normal', fontWeight: 500, fontSize: 14 }}>
+                component
+              </span><br />
+              to explore
+            </div>
+
+            {/* Divider */}
+            <div style={{ width: 28, height: 1, backgroundColor: 'rgba(201,168,76,0.2)', marginBottom: 18 }} />
+
+            {/* Component count chips */}
             {[
-              "top-[-7px] left-[-7px]",
-              "top-[-7px] right-[-7px]",
-              "bottom-[-7px] left-[-7px]",
-              "bottom-[-7px] right-[-7px]",
-            ].map((pos, i) => (
-              <div
-                key={i}
-                className={`absolute h-[10px] w-[10px] rounded-[1px] border border-[#c9a84c47] ${pos}`}
-              />
+              { label: '8', sub: 'CORES' },
+              { label: '1', sub: 'L3 CACHE' },
+              { label: '3', sub: 'I/O PORTS' },
+            ].map(({ label, sub }) => (
+              <div key={sub} style={{ marginBottom: 12, display: 'flex', alignItems: 'baseline', gap: 6 }}>
+                <span style={{
+                  fontFamily: "'Cormorant Garamond', serif",
+                  fontSize: 22,
+                  fontWeight: 500,
+                  color: 'rgba(240,237,230,0.6)',
+                  lineHeight: 1,
+                  letterSpacing: -0.5,
+                }}>{label}</span>
+                <span style={{
+                  fontFamily: "'Syne Mono', monospace",
+                  fontSize: 6,
+                  letterSpacing: 3,
+                  color: 'rgba(201,168,76,0.35)',
+                }}>{sub}</span>
+              </div>
             ))}
           </motion.div>
-          <div className="flex flex-col items-center">
-            <PipelineRow progress={smooth} />
-            <MemoryEgressCue progress={smooth} />
-          </div>
-        </motion.div>
-        </div>
-        <motion.div
-          style={{
-            opacity: statOpacity,
-            x: statX,
+
+          {/* ── Bottom narrative ── */}
+          <motion.div style={{
+            opacity: copyOpacity,
+            y: copyParallaxY,
             position: 'absolute',
-            right: '7vw',
-            top: '50%',
-            y: '-50%',
+            left: '50%',
+            x: '-50%',
+            bottom: 'max(22px, 3.5vh)',
+            margin: 0,
+            textAlign: 'center',
+            maxWidth: 460,
             zIndex: 20,
-            textAlign: 'right',
           }}
-        >
-          <motion.div style={{ y: statParallaxY }}>
-          <div style={{
-            fontFamily: "'Cormorant Garamond', serif",
-            fontSize: 100, fontWeight: 600,
-            color: '#F0EDE6', lineHeight: 1,
-            letterSpacing: -4,
-            textShadow: '0 0 100px rgba(201,168,76,0.18)',
-          }}>
-            {ghzDisplay}
-          </div>
-          <div style={{
-            fontFamily: "'Syne Mono', monospace",
-            fontSize: 9, letterSpacing: 6,
-            color: 'rgba(201,168,76,0.45)',
-            marginTop: 6,
-          }}>
-            GHz CLOCK
-          </div>
-          <div style={{ width: '100%', height: 1, backgroundColor: 'rgba(201,168,76,0.18)', margin: '14px 0' }} />
-          <div style={{
-            fontFamily: "'Syne Mono', monospace",
-            fontSize: 7.5, letterSpacing: 2.5,
-            color: 'rgba(201,168,76,0.28)',
-          }}>
-            4.2 × 10⁹ cycles / sec
-          </div>
-          <div style={{
-            fontFamily: "'Syne Mono', monospace",
-            fontSize: 7.5, letterSpacing: 2.5,
-            color: 'rgba(201,168,76,0.22)',
-            marginTop: 6,
-          }}>
-            8 cores · 16 threads
-          </div>
+            className="w-[90%] md:w-auto"
+          >
+            <p className="text-[14px] md:text-[16.5px]" style={{
+              fontFamily: "'Cormorant Garamond', serif",
+              fontWeight: 300, fontStyle: 'italic',
+              color: 'rgba(240,237,230,0.9)',
+              lineHeight: 1.9, letterSpacing: 0.2, margin: 0, pointerEvents: 'none',
+            }}>
+              Each clock cycle, the CPU fetches an instruction, decodes its intent,
+              and executes with surgical precision -
+              <span style={{ color: 'rgba(201,168,76,0.8)', fontStyle: 'normal' }}> four billion times every second.</span>
+            </p>
           </motion.div>
-        </motion.div>
 
-        {/* ── Left: Hover-to-explore hint ── */}
-        <motion.div
-          style={{
-            opacity: statOpacity,
-            position: 'absolute',
-            left: '7vw',
-            top: '50%',
-            y: statParallaxY,
-            zIndex: 20,
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'flex-start',
-            gap: 0,
-            transform: 'translateY(-50%)',
-          }}
-        >
-          {/* Vertical "INTERACTIVE" label */}
-          <div style={{
-            display: 'flex',
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 14,
-            marginBottom: 28,
-          }}>
-            {/* Vertical decorative trace */}
-            <div style={{
-              width: 1,
-              height: 80,
-              background: 'linear-gradient(to bottom, transparent, rgba(201,168,76,0.5) 40%, rgba(201,168,76,0.5) 60%, transparent)',
-              position: 'relative',
-              flexShrink: 0,
-            }}>
-              {/* Pulsing travel dot */}
-              <motion.div
-                animate={{ y: ['0%', '100%', '0%'] }}
-                transition={{ duration: 2.4, repeat: Infinity, ease: 'easeInOut' }}
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: '50%',
-                  transform: 'translateX(-50%)',
-                  width: 4,
-                  height: 4,
-                  borderRadius: '50%',
-                  backgroundColor: 'rgba(201,168,76,0.9)',
-                  boxShadow: '0 0 8px rgba(201,168,76,0.7)',
-                }}
-              />
-            </div>
-            <div style={{
-              writingMode: 'vertical-lr',
-              transform: 'rotate(180deg)',
-              fontFamily: "'Syne Mono', monospace",
-              fontSize: 7,
-              letterSpacing: 5,
-              color: 'rgba(201,168,76,0.38)',
-              userSelect: 'none',
-            }}>
-              INTERACTIVE
-            </div>
-          </div>
+          <ScrollIndicator progress={smooth} />
 
-          {/* Main "hover" call-to-action */}
-          <div style={{
-            fontFamily: "'Cormorant Garamond', serif",
-            fontSize: 13,
-            fontWeight: 300,
-            fontStyle: 'italic',
-            color: 'rgba(240,237,230,0.55)',
-            lineHeight: 1.6,
-            letterSpacing: 0.3,
-            maxWidth: 110,
-            marginBottom: 20,
-          }}>
-            hover each<br />
-            <span style={{ color: 'rgba(201,168,76,0.8)', fontStyle: 'normal', fontWeight: 500, fontSize: 14 }}>
-              component
-            </span><br />
-            to explore
-          </div>
-
-          {/* Divider */}
-          <div style={{ width: 28, height: 1, backgroundColor: 'rgba(201,168,76,0.2)', marginBottom: 18 }} />
-
-          {/* Component count chips */}
-          {[
-            { label: '8', sub: 'CORES' },
-            { label: '1', sub: 'L3 CACHE' },
-            { label: '3', sub: 'I/O PORTS' },
-          ].map(({ label, sub }) => (
-            <div key={sub} style={{ marginBottom: 12, display: 'flex', alignItems: 'baseline', gap: 6 }}>
-              <span style={{
-                fontFamily: "'Cormorant Garamond', serif",
-                fontSize: 22,
-                fontWeight: 500,
-                color: 'rgba(240,237,230,0.6)',
-                lineHeight: 1,
-                letterSpacing: -0.5,
-              }}>{label}</span>
-              <span style={{
-                fontFamily: "'Syne Mono', monospace",
-                fontSize: 6,
-                letterSpacing: 3,
-                color: 'rgba(201,168,76,0.35)',
-              }}>{sub}</span>
-            </div>
-          ))}
-        </motion.div>
-
-        {/* ── Bottom narrative ── */}
-        <motion.div style={{
-          opacity: copyOpacity,
-          y: copyParallaxY,
-          position: 'absolute',
-          left: '50%',
-          x: '-50%',
-          bottom: 'max(22px, 3.5vh)',
-          margin: 0,
-          textAlign: 'center',
-          maxWidth: 460,
-          zIndex: 20,
-        }}>
-          <p style={{
-            fontFamily: "'Cormorant Garamond', serif",
-            fontSize: 16.5, fontWeight: 300, fontStyle: 'italic',
-            color: 'rgba(240,237,230,0.9)',
-            lineHeight: 1.9, letterSpacing: 0.2, margin: 0,
-          }}>
-            Each clock cycle, the CPU fetches an instruction, decodes its intent,
-            and executes with surgical precision -
-            <span style={{ color: 'rgba(201,168,76,0.8)', fontStyle: 'normal' }}> four billion times every second.</span>
-          </p>
-        </motion.div>
-
-        <ScrollIndicator progress={smooth} />
-
-      </div>
+        </div>
       </section>
     </div>
   );

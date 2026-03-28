@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValueEvent } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useTransform, useSpring, useMotionValueEvent, easeInOut, easeOut } from 'framer-motion';
 import { Cpu, Layers, Zap, Triangle, Box, Activity } from 'lucide-react';
 
 // ─── Design tokens ────────────────────────────────────────────────────────────
@@ -49,7 +49,7 @@ function BgLayers({ scrollYProgress }) {
 
 // ─── Scroll progress bar ──────────────────────────────────────────────────────
 function ScrollProgressBar({ progress }) {
-  const width = useTransform(progress, [0, 1], ['0%', '100%']);
+  const width = useTransform(progress, [0, 1], ['0%', '100%'], {ease:easeOut});
   return (
     <div style={{ position: 'fixed', top: 0, left: 0, right: 0, height: 2, zIndex: 100, background: GOLD_DIM }}>
       <motion.div style={{ height: '100%', width, background: GOLD, boxShadow: '0 0 8px rgba(201,168,76,0.6)' }} />
@@ -167,9 +167,9 @@ const PIPE_STAGES = [
 
 function PipelineStage({ stage, index, smooth }) {
   const [hovered, setHovered] = useState(false);
-  const t = 0.50 + index * 0.05;
-  const opacity = useTransform(smooth, [t, t + 0.06], [0, 1]);
-  const scale = useTransform(smooth, [t, t + 0.06], [0.8, 1]);
+  const t = 0.28 + index * 0.05;
+  const opacity = useTransform(smooth, [t, t + 0.01], [0, 1]);
+  const scale = useTransform(smooth, [t, t + 0.01], [0.8, 1]);
   
   return (
     <motion.div style={{ opacity, scale, position: 'relative' }}>
@@ -289,8 +289,8 @@ function VRAMChip({ index, phase }) {
 
 // ─── Intro panel (phase 0) ────────────────────────────────────────────────────
 function GPUIntroPanel({ smooth }) {
-  const opacity = useTransform(smooth, [0, 0.08, 0.22, 0.28], [0, 1, 1, 0]);
-  const y       = useTransform(smooth, [0, 0.08, 0.26], [32, 0, -24]);
+  const opacity = useTransform(smooth, [0, 0.06, 0.10, 0.15], [0, 1, 1, 0]);
+  const y       = useTransform(smooth, [0, 0.06, 0.20], [32, 0, -24]);
   return (
     <motion.div style={{ opacity, y, textAlign: 'center', pointerEvents: 'none' }}>
       <motion.div animate={{ y: [0, -5, 0] }} transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
@@ -340,8 +340,8 @@ function GPUIntroPanel({ smooth }) {
 
 // ─── Shader-core grid panel (phase 1) ─────────────────────────────────────────
 function ShaderCorePanel({ smooth, phase }) {
-  const opacity = useTransform(smooth, [0.24, 0.32, 0.48, 0.56], [0, 1, 1, 0]);
-  const scale   = useTransform(smooth, [0.24, 0.32], [0.93, 1]);
+  const opacity = useTransform(smooth, [0.14, 0.18, 0.25, 0.3], [0, 1, 1, 0]);
+  const scale   = useTransform(smooth, [0.14, 0.18], [0.93, 1]);
   return (
     <motion.div style={{ opacity, scale, width: '100%', maxWidth: 600, margin: '0 auto' }}>
       <div style={{ textAlign: 'center', marginBottom: 22 }}>
@@ -373,7 +373,7 @@ function ShaderCorePanel({ smooth, phase }) {
           animate={{ opacity: [0.45, 1, 0.45] }} transition={{ duration: 2.5, repeat: Infinity }}>
           84 SMs ACTIVE
         </motion.div>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(6, 1fr)', gap: 6, position: 'relative', zIndex: 3, paddingTop: 22 }}>
+        <div className="shader-grid" style={{ position: 'relative', zIndex: 3 }}>
           {Array.from({ length: 12 }, (_, i) => <ShaderCore key={i} index={i} phase={phase} />)}
         </div>
       </motion.div>
@@ -383,8 +383,8 @@ function ShaderCorePanel({ smooth, phase }) {
 
 // ─── Render pipeline panel (phase 2) ──────────────────────────────────────────
 function RenderPipelinePanel({ smooth, phase }) {
-  const opacity = useTransform(smooth, [0.50, 0.58, 0.72, 0.80], [0, 1, 1, 0]);
-  const y = useTransform(smooth, [0.50, 0.58], [30, 0]);
+  const opacity = useTransform(smooth, [0.3, 0.34, 0.55, 0.6], [0, .8, 1, 0]);
+  const y = useTransform(smooth, [0.30, 0.34], [30, 0]);
 
   return (
     <motion.div style={{ opacity, y, width: '100%', maxWidth: 850, margin: '0 auto' }}>
@@ -400,9 +400,9 @@ function RenderPipelinePanel({ smooth, phase }) {
         </p>
       </div>
 
-      <div style={{ position: 'relative', padding: '0 40px' }}>
+      <div style={{ position: 'relative', padding: '0 clamp(10px, 4vw, 40px)' }}>
         {/* S-Curve Path SVG */}
-        <svg style={{ position: 'absolute', top: '50%', left: 0, width: '100%', height: 200, transform: 'translateY(-50%)', pointerEvents: 'none', zIndex: 0 }}
+        <svg className="pipeline-svg" style={{ position: 'absolute', top: '50%', left: 0, width: '100%', height: 200, transform: 'translateY(-50%)', pointerEvents: 'none', zIndex: 0 }}
              viewBox="0 0 800 200">
           <motion.path
             d="M 40 50 L 760 50 C 780 50 780 150 760 150 L 40 150"
@@ -424,22 +424,12 @@ function RenderPipelinePanel({ smooth, phase }) {
           </motion.circle>
         </svg>
 
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(3, 1fr)', 
-          gap: '60px 30px',
-          position: 'relative',
-          zIndex: 1
-        }}>
-          {PIPE_STAGES.map((stage, i) => {
-            // Reorder for visual S-curve: 0,1,2 then 5,4,3 (top row left-to-right, bottom row right-to-left)
-            const visualIndex = i < 3 ? i : (5 - (i - 3));
-            return (
-              <div key={stage.name} style={{ gridColumn: (visualIndex % 3) + 1, gridRow: Math.floor(i / 3) + 1 }}>
-                <PipelineStage stage={stage} index={i} smooth={smooth} />
-              </div>
-            );
-          })}
+        <div className="pipeline-grid">
+          {PIPE_STAGES.map((stage, i) => (
+            <div key={stage.name} className="pipeline-item">
+              <PipelineStage stage={stage} index={i} smooth={smooth} />
+            </div>
+          ))}
         </div>
       </div>
 
@@ -459,8 +449,8 @@ function RenderPipelinePanel({ smooth, phase }) {
 
 // ─── VRAM panel (phase 3) ─────────────────────────────────────────────────────
 function VRAMPanel({ smooth, phase }) {
-  const opacity = useTransform(smooth, [0.74, 0.82, 0.92, 0.97], [0, 1, 1, 0]);
-  const y       = useTransform(smooth, [0.74, 0.82], [40, 0]);
+  const opacity = useTransform(smooth, [0.60, 0.64, 0.68, 0.72], [0, 1, 1, 0]);
+  const y       = useTransform(smooth, [0.60, 0.64], [40, 0]);
   return (
     <motion.div style={{ opacity, y, width: '100%', maxWidth: 700, margin: '0 auto' }}>
       <div style={{ textAlign: 'center', marginBottom: 22 }}>
@@ -474,7 +464,7 @@ function VRAMPanel({ smooth, phase }) {
           High-bandwidth memory sits right next to the GPU die, feeding textures and framebuffers at massive speeds.
         </p>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: 16 }}>
+      <div className="vram-grid">
         {Array.from({ length: 4 }, (_, i) => <VRAMChip key={i} index={i} phase={phase} />)}
       </div>
       {/* Bus throughput bar */}
@@ -511,8 +501,8 @@ const GPU_STATS = [
   { label: 'Tensor Cores', value: '512', sub: 'AI / DLSS acceleration' },
 ];
 function GPUStatsPanel({ smooth, phase }) {
-  const opacity = useTransform(smooth, [0.92, 0.98], [0, 1]);
-  const y       = useTransform(smooth, [0.92, 0.98], [32, 0]);
+  const opacity = useTransform(smooth, [0.7, 0.82], [0, 1]);
+  const y       = useTransform(smooth, [0.78, 0.80], [32, 0]);
   return (
     <motion.div style={{ opacity, y, width: '100%', maxWidth: 900, margin: '0 auto' }}>
       <div style={{ textAlign: 'center', marginBottom: 28 }}>
@@ -520,7 +510,7 @@ function GPUStatsPanel({ smooth, phase }) {
           GPU Specifications
         </span>
       </div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 16 }}>
+      <div className="stats-grid">
         {GPU_STATS.map(stat => (
           <motion.div key={stat.label} whileHover={{ scale: 1.03, boxShadow: `0 0 28px rgba(201,168,76,0.18)` }}
             style={{
@@ -550,6 +540,80 @@ function GPUStatsPanel({ smooth, phase }) {
   );
 }
 
+// ─── Responsive Styles ────────────────────────────────────────────────────────
+const responsiveStyles = `
+  .shader-grid {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 6px;
+    padding-top: 22px;
+  }
+  @media (max-width: 768px) {
+    .shader-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  @media (max-width: 480px) {
+    .shader-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .pipeline-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 60px 30px;
+    position: relative;
+    z-index: 1;
+  }
+  @media (min-width: 769px) {
+    .pipeline-item:nth-child(4) { grid-column: 3; grid-row: 2; }
+    .pipeline-item:nth-child(5) { grid-column: 2; grid-row: 2; }
+    .pipeline-item:nth-child(6) { grid-column: 1; grid-row: 2; }
+  }
+  @media (max-width: 768px) {
+    .pipeline-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    .pipeline-svg { display: none; }
+  }
+  @media (max-width: 480px) {
+    .pipeline-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+  }
+
+  .vram-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 600px) {
+    .vram-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+  }
+  @media (max-width: 768px) {
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+  @media (max-width: 480px) {
+    .stats-grid {
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+  }
+`;
+
 // ─── Root GPU component ───────────────────────────────────────────────────────
 const GPU = ({ arrivalKey = 0, onBack, onContinue }) => {
   const [phase, setPhase] = useState(false);
@@ -563,20 +627,20 @@ const GPU = ({ arrivalKey = 0, onBack, onContinue }) => {
 
   const [scrollPhase, setScrollPhase] = useState(0);
   useMotionValueEvent(smooth, 'change', (v) => {
-    if      (v < 0.26) setScrollPhase(0);
-    else if (v < 0.54) setScrollPhase(1);
-    else if (v < 0.78) setScrollPhase(2);
-    else if (v < 0.94) setScrollPhase(3);
+    if      (v < 0.15) setScrollPhase(0);
+    else if (v < 0.36) setScrollPhase(1);
+    else if (v < 0.65) setScrollPhase(2);
+    else if (v < 0.78) setScrollPhase(3);
     else               setScrollPhase(4);
   });
 
-  // scroll-down handoff → Motherboard
+  // scrol→ Mothel-down handoff rboard
   useEffect(() => {
     const el = scrollRootRef.current;
     if (!el || !onContinue) return;
     const check = () => {
       if (handoffRef.current) return;
-      if (el.scrollTop + el.clientHeight >= el.scrollHeight - 6) {
+      if (el.scrollTop + el.clientHeight >= el.scrollHeight -6) {
         handoffRef.current = true;
         onContinue();
       }
@@ -605,10 +669,11 @@ const GPU = ({ arrivalKey = 0, onBack, onContinue }) => {
         position: 'relative', height: '100%', width: '100%', backgroundColor: BG_DARK,
         overflowX: 'hidden', overflowY: 'auto', WebkitOverflowScrolling: 'touch'
       }}>
+      <style>{responsiveStyles}</style>
 
-      <ScrollProgressBar progress={smooth} />
+      <ScrollProgressBar progress={scrollYProgress} />
       <PhaseIndicator currentPhase={scrollPhase} />
-      <BgLayers scrollYProgress={smooth} />
+      <BgLayers scrollYProgress={smooth} /> 
 
       {/* pull-up hint */}
       <motion.div style={{
@@ -618,9 +683,8 @@ const GPU = ({ arrivalKey = 0, onBack, onContinue }) => {
       }} animate={{ opacity: [0.4, 0.8, 0.4] }} transition={{ duration: 2, repeat: Infinity }}>
         ↑ PULL UP · RETURN TO MEMORY
       </motion.div>
-
-      {/* ── Scroll narrative: 500vh ── */}
-      <section style={{ position: 'relative', height: '500vh', background: BG_DARK }}>
+      {/* ── Scroll narrative: 600vh ── */}
+      <section style={{ position: 'relative', height: '600vh', background: BG_DARK }}>
         <div style={{
           position: 'sticky', top: 0, height: '100dvh', display: 'flex',
           alignItems: 'center', justifyContent: 'center', overflow: 'hidden', zIndex: 10
